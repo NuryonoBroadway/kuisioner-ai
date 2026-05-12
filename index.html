@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kuisioner Ketergantungan AI Mahasiswa</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: rgba(255, 252, 246, 0.92);
+        --panel-strong: #fffdf8;
+        --text: #1d2b2a;
+        --muted: #5f6d68;
+        --line: rgba(29, 43, 42, 0.12);
+        --primary: #c95f36;
+        --primary-dark: #944024;
+        --accent: #1f7a72;
+        --shadow: 0 18px 45px rgba(58, 42, 27, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(201, 95, 54, 0.22), transparent 32%),
+          radial-gradient(circle at top right, rgba(31, 122, 114, 0.18), transparent 28%),
+          linear-gradient(180deg, #f8f2e8 0%, var(--bg) 100%);
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 72px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 40px;
+        border-radius: 28px;
+        background:
+          linear-gradient(135deg, rgba(29, 43, 42, 0.96), rgba(31, 122, 114, 0.9)),
+          #19302e;
+        color: #fff7ef;
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -40px -50px auto;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        background: rgba(255, 247, 239, 0.08);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 247, 239, 0.12);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 18px 0 14px;
+        max-width: 920px;
+        font-size: clamp(2rem, 3.2vw, 3.5rem);
+        line-height: 1.08;
+      }
+
+      .hero p {
+        max-width: 760px;
+        margin: 0;
+        color: rgba(255, 247, 239, 0.86);
+        font-size: 1.03rem;
+        line-height: 1.7;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 24px;
+        margin-top: 28px;
+        align-items: start;
+      }
+
+      .sidebar,
+      .card {
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 24px;
+        padding: 24px;
+      }
+
+      .sidebar h2,
+      .section-header h2 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+      }
+
+      .sidebar p,
+      .section-header p,
+      .hint,
+      .choice-label {
+        color: var(--muted);
+      }
+
+      .scale-list,
+      .meta-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .scale-item,
+      .meta-item {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--line);
+      }
+
+      .meta-item strong,
+      .scale-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .card {
+        padding: 28px;
+      }
+
+      .section {
+        padding: 24px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .section:first-of-type {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .section-header {
+        margin-bottom: 20px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .field,
+      .question-card {
+        padding: 18px;
+        border-radius: 20px;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+      }
+
+      .field label,
+      .question-title {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid rgba(29, 43, 42, 0.18);
+        border-radius: 14px;
+        font: inherit;
+        color: var(--text);
+        background: #fff;
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .question-list {
+        display: grid;
+        gap: 18px;
+      }
+
+      .choice-row {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .choice-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .choice-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 86px;
+        padding: 12px 8px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: #fff;
+        cursor: pointer;
+        transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        text-align: center;
+      }
+
+      .choice-option label:hover {
+        transform: translateY(-2px);
+        border-color: rgba(201, 95, 54, 0.45);
+      }
+
+      .choice-option input:checked + label {
+        background: rgba(201, 95, 54, 0.1);
+        border-color: var(--primary);
+        color: var(--primary-dark);
+      }
+
+      .choice-value {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        align-items: center;
+        padding-top: 24px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 14px 22px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, var(--primary), #df855f);
+        color: #fff;
+      }
+
+      .secondary-btn {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(31, 122, 114, 0.24);
+      }
+
+      .result-box {
+        display: none;
+        margin-top: 20px;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(31, 122, 114, 0.08);
+        border: 1px solid rgba(31, 122, 114, 0.18);
+      }
+
+      .result-box.show {
+        display: block;
+      }
+
+      .result-score {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--accent);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .toolbar button {
+        padding: 12px 18px;
+      }
+
+      .neutral-btn {
+        background: #fff;
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+
+      .danger-btn {
+        background: #fff4f0;
+        color: #9a3c1d;
+        border: 1px solid rgba(154, 60, 29, 0.18);
+      }
+
+      .dataset-box {
+        margin-top: 24px;
+        padding: 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid var(--line);
+      }
+
+      .dataset-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 16px 0 18px;
+      }
+
+      .stat-card {
+        padding: 16px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+      }
+
+      .stat-card strong {
+        display: block;
+        font-size: 1.4rem;
+        margin-top: 6px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      th {
+        background: #f8f2ea;
+        font-size: 0.92rem;
+      }
+
+      .empty-state {
+        padding: 18px;
+        color: var(--muted);
+      }
+
+      .settings-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.92rem;
+      }
+
+      .status-on {
+        background: rgba(31, 122, 114, 0.12);
+        color: var(--accent);
+      }
+
+      .status-off {
+        background: rgba(201, 95, 54, 0.12);
+        color: var(--primary-dark);
+      }
+
+      @media (max-width: 960px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page-shell {
+          width: min(100% - 20px, 1120px);
+          padding-top: 20px;
+        }
+
+        .hero,
+        .card,
+        .sidebar {
+          padding: 22px;
+          border-radius: 22px;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .choice-row {
+          grid-template-columns: 1fr;
+        }
+
+        .choice-option label {
+          min-height: auto;
+          flex-direction: row;
+          justify-content: space-between;
+          padding-inline: 14px;
+        }
+
+        .dataset-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .settings-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero">
+        <div class="eyebrow">Kuisioner Penelitian Mahasiswa</div>
+        <h1>
+          Pengaruh Integrasi Teknologi Kecerdasan Buatan (AI) dalam Sistem
+          Pembelajaran Jarak Jauh (E-Learning) terhadap Tingkat Keterlibatan
+          dan Hasil Belajar Mahasiswa di Perguruan Tinggi
+        </h1>
+        <p>
+          Formulir ini dirancang untuk mengukur intensitas penggunaan AI,
+          tingkat ketergantungan mahasiswa, pengaruhnya pada keterlibatan
+          belajar, serta dampaknya terhadap pemahaman dan hasil akademik dalam
+          konteks pembelajaran daring.
+        </p>
+      </section>
+
+      <div class="layout">
+        <aside class="sidebar">
+          <h2>Petunjuk Pengisian</h2>
+          <p>
+            Pilih jawaban paling sesuai dengan kondisi Anda selama mengikuti
+            pembelajaran berbasis e-learning.
+          </p>
+
+          <div class="meta-list">
+            <div class="meta-item">
+              <strong>Responden</strong>
+              Mahasiswa perguruan tinggi yang menggunakan platform e-learning.
+            </div>
+            <div class="meta-item">
+              <strong>Tujuan</strong>
+              Menilai hubungan antara penggunaan AI, keterlibatan belajar, dan
+              hasil belajar.
+            </div>
+          </div>
+
+          <div class="scale-list">
+            <div class="scale-item">
+              <strong>1 - Sangat Tidak Setuju</strong>
+              Menunjukkan pernyataan tidak sesuai sama sekali.
+            </div>
+            <div class="scale-item">
+              <strong>3 - Netral</strong>
+              Menunjukkan posisi tengah atau ragu-ragu.
+            </div>
+            <div class="scale-item">
+              <strong>5 - Sangat Setuju</strong>
+              Menunjukkan pernyataan sangat sesuai.
+            </div>
+          </div>
+        </aside>
+
+        <section class="card">
+          <form id="surveyForm">
+            <div class="section">
+              <div class="section-header">
+                <h2>Data Responden</h2>
+                <p>Isian ini membantu proses kategorisasi data penelitian.</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="nama">Nama Lengkap</label>
+                  <input id="nama" name="nama" type="text" placeholder="Nama Anda" required />
+                </div>
+                <div class="field">
+                  <label for="kampus">Asal Perguruan Tinggi</label>
+                  <input id="kampus" name="kampus" type="text" placeholder="Nama kampus" required />
+                </div>
+                <div class="field">
+                  <label for="fakultas">Fakultas / Program Studi</label>
+                  <input id="fakultas" name="fakultas" type="text" placeholder="Contoh: Teknik Informatika" required />
+                </div>
+                <div class="field">
+                  <label for="semester">Semester</label>
+                  <select id="semester" name="semester" required>
+                    <option value="">Pilih semester</option>
+                    <option>Semester 1-2</option>
+                    <option>Semester 3-4</option>
+                    <option>Semester 5-6</option>
+                    <option>Semester 7 ke atas</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-header">
+                <h2>Skala Pernyataan</h2>
+                <p>
+                  Berikan penilaian 1 sampai 5 untuk setiap pernyataan berikut.
+                </p>
+              </div>
+              <div class="question-list" id="questionList"></div>
+            </div>
+
+            <div class="section">
+              <div class="section-header">
+                <h2>Pertanyaan Terbuka</h2>
+                <p>
+                  Jelaskan pandangan Anda tentang peran AI dalam pembelajaran
+                  jarak jauh.
+                </p>
+              </div>
+              <div class="field">
+                <label for="opini">
+                  Menurut Anda, apakah penggunaan AI lebih membantu atau justru
+                  meningkatkan ketergantungan dalam belajar? Jelaskan singkat.
+                </label>
+                <textarea id="opini" name="opini" placeholder="Tuliskan pendapat Anda..."></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="primary-btn" type="submit">Kirim Kuisioner</button>
+              <button class="secondary-btn" type="reset">Reset Form</button>
+              <span class="hint">Semua pernyataan wajib diisi sebelum dikirim.</span>
+            </div>
+
+            <div class="result-box" id="resultBox" aria-live="polite"></div>
+
+            <div class="dataset-box">
+              <div class="section-header">
+                <h2>Sinkronisasi Google Sheets</h2>
+                <p>
+                  Tempel URL Web App Google Apps Script agar setiap respons
+                  juga dikirim ke spreadsheet penelitian Anda.
+                </p>
+              </div>
+
+              <div class="settings-grid">
+                <div class="field" style="margin: 0;">
+                  <label for="scriptUrl">URL Web App Google Apps Script</label>
+                  <input
+                    id="scriptUrl"
+                    type="url"
+                    placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+                  />
+                </div>
+                <button class="neutral-btn" type="button" id="saveScriptUrlBtn">
+                  Simpan URL
+                </button>
+              </div>
+
+              <div style="margin-top: 14px;">
+                <span class="status-badge status-off" id="syncStatus">
+                  Sinkronisasi belum aktif
+                </span>
+              </div>
+            </div>
+
+            <div class="dataset-box">
+              <div class="section-header">
+                <h2>Rekap Data Penelitian</h2>
+                <p>
+                  Respons disimpan di browser perangkat ini dan dapat diekspor
+                  untuk analisis di Excel, Google Sheets, SPSS, atau R.
+                </p>
+              </div>
+
+              <div class="dataset-stats">
+                <div class="stat-card">
+                  Total Responden
+                  <strong id="totalResponses">0</strong>
+                </div>
+                <div class="stat-card">
+                  Rata-rata Skor Seluruh Data
+                  <strong id="datasetAverage">0.00</strong>
+                </div>
+                <div class="stat-card">
+                  Status Dataset
+                  <strong id="datasetStatus">Kosong</strong>
+                </div>
+              </div>
+
+              <div class="toolbar">
+                <button class="neutral-btn" type="button" id="exportCsvBtn">
+                  Export CSV
+                </button>
+                <button class="neutral-btn" type="button" id="exportJsonBtn">
+                  Export JSON
+                </button>
+                <button class="danger-btn" type="button" id="clearDataBtn">
+                  Hapus Data Lokal
+                </button>
+              </div>
+
+              <div class="table-wrap" style="margin-top: 18px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Waktu</th>
+                      <th>Nama</th>
+                      <th>Kampus</th>
+                      <th>Program Studi</th>
+                      <th>Semester</th>
+                      <th>Skor Rata-rata</th>
+                      <th>Kategori</th>
+                    </tr>
+                  </thead>
+                  <tbody id="responsesTableBody">
+                    <tr>
+                      <td class="empty-state" colspan="7">
+                        Belum ada data responden yang tersimpan.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const STORAGE_KEY = "ai-elearning-survey-responses-v1";
+      const SCRIPT_URL_KEY = "ai-elearning-google-script-url";
+      const questions = [
+        {
+          id: "q1",
+          category: "Intensitas Penggunaan AI",
+          text: "Saya rutin menggunakan AI untuk membantu memahami materi kuliah pada platform e-learning."
+        },
+        {
+          id: "q2",
+          category: "Intensitas Penggunaan AI",
+          text: "Saya menggunakan AI untuk menyelesaikan tugas kuliah lebih sering dibanding mencari referensi sendiri."
+        },
+        {
+          id: "q3",
+          category: "Ketergantungan terhadap AI",
+          text: "Saya merasa kesulitan mengerjakan tugas jika tidak menggunakan bantuan AI."
+        },
+        {
+          id: "q4",
+          category: "Ketergantungan terhadap AI",
+          text: "Saya cenderung menerima jawaban AI tanpa melakukan pengecekan ulang dari sumber lain."
+        },
+        {
+          id: "q5",
+          category: "Keterlibatan Belajar",
+          text: "Integrasi AI membuat saya lebih aktif bertanya, berdiskusi, atau mengeksplorasi materi pembelajaran daring."
+        },
+        {
+          id: "q6",
+          category: "Keterlibatan Belajar",
+          text: "Penggunaan AI membantu saya tetap fokus dan konsisten mengikuti aktivitas pembelajaran online."
+        },
+        {
+          id: "q7",
+          category: "Hasil Belajar",
+          text: "AI membantu saya memahami materi lebih cepat dibanding hanya mengandalkan modul e-learning."
+        },
+        {
+          id: "q8",
+          category: "Hasil Belajar",
+          text: "Penggunaan AI berkontribusi pada peningkatan kualitas tugas, kuis, atau nilai akademik saya."
+        },
+        {
+          id: "q9",
+          category: "Evaluasi Kritis",
+          text: "Saya tetap mampu berpikir kritis dan mandiri meskipun sering menggunakan AI dalam belajar."
+        },
+        {
+          id: "q10",
+          category: "Evaluasi Kritis",
+          text: "Dosen perlu mengatur penggunaan AI agar manfaatnya tetap tinggi tanpa menimbulkan ketergantungan berlebihan."
+        }
+      ];
+
+      const scaleLabels = [
+        ["1", "Sangat Tidak Setuju"],
+        ["2", "Tidak Setuju"],
+        ["3", "Netral"],
+        ["4", "Setuju"],
+        ["5", "Sangat Setuju"]
+      ];
+
+      const questionList = document.getElementById("questionList");
+      const form = document.getElementById("surveyForm");
+      const resultBox = document.getElementById("resultBox");
+      const totalResponsesEl = document.getElementById("totalResponses");
+      const datasetAverageEl = document.getElementById("datasetAverage");
+      const datasetStatusEl = document.getElementById("datasetStatus");
+      const responsesTableBody = document.getElementById("responsesTableBody");
+      const exportCsvBtn = document.getElementById("exportCsvBtn");
+      const exportJsonBtn = document.getElementById("exportJsonBtn");
+      const clearDataBtn = document.getElementById("clearDataBtn");
+      const scriptUrlInput = document.getElementById("scriptUrl");
+      const saveScriptUrlBtn = document.getElementById("saveScriptUrlBtn");
+      const syncStatus = document.getElementById("syncStatus");
+
+      questions.forEach((question, index) => {
+        const wrapper = document.createElement("article");
+        wrapper.className = "question-card";
+        wrapper.innerHTML = `
+          <div class="question-title">${index + 1}. ${question.text}</div>
+          <div class="hint">${question.category}</div>
+          <div class="choice-row">
+            ${scaleLabels
+              .map(
+                ([value, label]) => `
+                <div class="choice-option">
+                  <input
+                    type="radio"
+                    id="${question.id}-${value}"
+                    name="${question.id}"
+                    value="${value}"
+                    required
+                  />
+                  <label for="${question.id}-${value}">
+                    <span class="choice-value">${value}</span>
+                    <span class="choice-label">${label}</span>
+                  </label>
+                </div>
+              `
+              )
+              .join("")}
+          </div>
+        `;
+        questionList.appendChild(wrapper);
+      });
+
+      function loadResponses() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function saveResponses(responses) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(responses));
+      }
+
+      function loadScriptUrl() {
+        return localStorage.getItem(SCRIPT_URL_KEY) || "";
+      }
+
+      function saveScriptUrl(url) {
+        localStorage.setItem(SCRIPT_URL_KEY, url);
+      }
+
+      function getCategory(average) {
+        if (average >= 4.2) {
+          return "Ketergantungan terhadap AI cenderung tinggi";
+        }
+        if (average >= 3.2) {
+          return "Integrasi AI cukup kuat, perlu evaluasi pola penggunaan";
+        }
+        if (average <= 2.2) {
+          return "Ketergantungan terhadap AI relatif rendah";
+        }
+        return "Penggunaan AI seimbang";
+      }
+
+      function formatTimestamp(isoString) {
+        return new Date(isoString).toLocaleString("id-ID", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+      }
+
+      function renderResponses() {
+        const responses = loadResponses();
+        totalResponsesEl.textContent = String(responses.length);
+
+        if (responses.length === 0) {
+          datasetAverageEl.textContent = "0.00";
+          datasetStatusEl.textContent = "Kosong";
+          responsesTableBody.innerHTML = `
+            <tr>
+              <td class="empty-state" colspan="7">
+                Belum ada data responden yang tersimpan.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const datasetAverage =
+          responses.reduce((sum, item) => sum + item.averageScore, 0) / responses.length;
+
+        datasetAverageEl.textContent = datasetAverage.toFixed(2);
+        datasetStatusEl.textContent = "Siap diexport";
+        responsesTableBody.innerHTML = responses
+          .map(
+            (item) => `
+              <tr>
+                <td>${formatTimestamp(item.submittedAt)}</td>
+                <td>${item.nama}</td>
+                <td>${item.kampus}</td>
+                <td>${item.fakultas}</td>
+                <td>${item.semester}</td>
+                <td>${item.averageScore.toFixed(2)}</td>
+                <td>${item.category}</td>
+              </tr>
+            `
+          )
+          .join("");
+      }
+
+      function escapeCsv(value) {
+        const safe = String(value ?? "").replaceAll('"', '""');
+        return `"${safe}"`;
+      }
+
+      function renderSyncStatus() {
+        const scriptUrl = loadScriptUrl();
+        scriptUrlInput.value = scriptUrl;
+        if (scriptUrl) {
+          syncStatus.textContent = "Sinkronisasi Google Sheets aktif";
+          syncStatus.className = "status-badge status-on";
+          return;
+        }
+        syncStatus.textContent = "Sinkronisasi belum aktif";
+        syncStatus.className = "status-badge status-off";
+      }
+
+      function downloadFile(content, fileName, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportCsv() {
+        const responses = loadResponses();
+        if (responses.length === 0) {
+          alert("Belum ada data untuk diexport.");
+          return;
+        }
+
+        const headers = [
+          "submitted_at",
+          "nama",
+          "kampus",
+          "fakultas",
+          "semester",
+          ...questions.map((question) => question.id),
+          "average_score",
+          "category",
+          "opini"
+        ];
+
+        const rows = responses.map((item) => [
+          item.submittedAt,
+          item.nama,
+          item.kampus,
+          item.fakultas,
+          item.semester,
+          ...questions.map((question) => item.answers[question.id]),
+          item.averageScore.toFixed(2),
+          item.category,
+          item.opini
+        ]);
+
+        const csvContent = [headers, ...rows]
+          .map((row) => row.map(escapeCsv).join(","))
+          .join("\n");
+
+        downloadFile(csvContent, "hasil-kuisioner-ai.csv", "text/csv;charset=utf-8;");
+      }
+
+      function exportJson() {
+        const responses = loadResponses();
+        if (responses.length === 0) {
+          alert("Belum ada data untuk diexport.");
+          return;
+        }
+
+        downloadFile(
+          JSON.stringify(responses, null, 2),
+          "hasil-kuisioner-ai.json",
+          "application/json;charset=utf-8;"
+        );
+      }
+
+      async function syncToGoogleSheets(entry) {
+        const scriptUrl = loadScriptUrl();
+        if (!scriptUrl) {
+          return { synced: false, reason: "not-configured" };
+        }
+
+        const payload = new URLSearchParams({
+          submittedAt: entry.submittedAt,
+          nama: entry.nama,
+          kampus: entry.kampus,
+          fakultas: entry.fakultas,
+          semester: entry.semester,
+          opini: entry.opini || "",
+          averageScore: String(entry.averageScore),
+          category: entry.category,
+          answers: JSON.stringify(entry.answers)
+        });
+
+        try {
+          await fetch(scriptUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+            },
+            body: payload.toString()
+          });
+          return { synced: true };
+        } catch (error) {
+          return { synced: false, reason: "network-error" };
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const scores = questions.map((question) => Number(formData.get(question.id)));
+        const total = scores.reduce((sum, score) => sum + score, 0);
+        const average = total / questions.length;
+        const category = getCategory(average);
+
+        const answerMap = Object.fromEntries(
+          questions.map((question) => [question.id, Number(formData.get(question.id))])
+        );
+
+        const entry = {
+          submittedAt: new Date().toISOString(),
+          nama: formData.get("nama"),
+          kampus: formData.get("kampus"),
+          fakultas: formData.get("fakultas"),
+          semester: formData.get("semester"),
+          opini: formData.get("opini"),
+          answers: answerMap,
+          averageScore: Number(average.toFixed(2)),
+          category
+        };
+
+        const responses = loadResponses();
+        responses.push(entry);
+        saveResponses(responses);
+        renderResponses();
+        const syncResult = await syncToGoogleSheets(entry);
+
+        let syncMessage =
+          "Data juga tersimpan di dataset lokal browser ini dan siap diexport ke format penelitian.";
+        if (syncResult.synced) {
+          syncMessage =
+            "Data tersimpan di browser ini dan juga dikirim ke Google Sheets penelitian Anda.";
+        } else if (syncResult.reason === "not-configured") {
+          syncMessage =
+            "Data tersimpan lokal. Tambahkan URL Google Apps Script agar respons berikutnya juga masuk ke Google Sheets.";
+        } else {
+          syncMessage =
+            "Data tersimpan lokal, tetapi pengiriman ke Google Sheets gagal. Periksa URL Web App atau izin deployment.";
+        }
+
+        resultBox.classList.add("show");
+        resultBox.innerHTML = `
+          <div class="result-score">Skor rata-rata: ${average.toFixed(2)} / 5</div>
+          <p><strong>Interpretasi:</strong> ${category}</p>
+          <p>
+            Data responden atas nama <strong>${formData.get("nama")}</strong>
+            berhasil direkam. ${syncMessage}
+          </p>
+        `;
+        resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      form.addEventListener("reset", () => {
+        resultBox.classList.remove("show");
+        resultBox.innerHTML = "";
+      });
+
+      exportCsvBtn.addEventListener("click", exportCsv);
+      exportJsonBtn.addEventListener("click", exportJson);
+      clearDataBtn.addEventListener("click", () => {
+        if (!window.confirm("Hapus seluruh data responden yang tersimpan di browser ini?")) {
+          return;
+        }
+        localStorage.removeItem(STORAGE_KEY);
+        renderResponses();
+        resultBox.classList.remove("show");
+        resultBox.innerHTML = "";
+      });
+      saveScriptUrlBtn.addEventListener("click", () => {
+        const url = scriptUrlInput.value.trim();
+        if (url && !url.startsWith("https://script.google.com/")) {
+          alert("Gunakan URL Web App Google Apps Script yang valid.");
+          return;
+        }
+        saveScriptUrl(url);
+        renderSyncStatus();
+      });
+
+      renderSyncStatus();
+      renderResponses();
+    </script>
+  </body>
+</html>
