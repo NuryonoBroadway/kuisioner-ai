@@ -1,10 +1,13 @@
 # Kuisioner AI untuk Penelitian
 
-Situs ini adalah kuisioner statis yang bisa di-host gratis dan dikirim ke Google Sheets untuk pengumpulan data penelitian.
+Situs ini adalah kuisioner statis yang bisa di-host gratis dan dikirim ke Google Sheets untuk pengumpulan data penelitian. Versi ini juga menambahkan proxy server agar URL Web App Google Apps Script tidak muncul di browser publik.
 
 ## Struktur
 
 - `index.html`: situs kuisioner utama.
+- `rekap.html`: halaman admin untuk melihat rekap data terpusat.
+- `api/submit.js`: endpoint server untuk meneruskan submit ke Google Apps Script menggunakan env.
+- `api/rekap.js`: endpoint server untuk mengambil rekap Google Sheets dengan proteksi kunci akses.
 - `google-apps-script/Code.gs`: backend gratis untuk menerima respons dan menyimpannya ke Google Sheets.
 
 ## Opsi hosting gratis
@@ -43,7 +46,7 @@ Contoh hasil URL:
 
 ## Deploy ke Vercel
 
-Proyek ini sudah siap untuk Vercel sebagai static site. File [vercel.json](/Users/AND5661/Learn/kuisioner-tentang-ai/vercel.json) ditambahkan untuk perilaku URL yang lebih rapi.
+Proyek ini sudah siap untuk Vercel sebagai static site. File [vercel.json](/Users/AND5661/Learn/kuisioner-ai/vercel.json) ditambahkan untuk perilaku URL yang lebih rapi.
 
 ### Cara termudah: import repository
 
@@ -69,7 +72,7 @@ Jika ingin deploy dari terminal, dokumentasi resmi Vercel menyarankan menjalanka
 
 - GitHub Pages sederhana dan sangat cocok untuk situs statis dasar.
 - Vercel biasanya lebih nyaman untuk preview deployment setiap perubahan.
-- Untuk proyek ini, integrasi Google Sheets tetap bekerja pada kedua platform karena submit dilakukan langsung dari browser ke Google Apps Script.
+- Untuk proyek ini, mode yang lebih aman menggunakan `env` dan server function, jadi Vercel lebih cocok daripada GitHub Pages.
 
 ## Integrasi Google Sheets
 
@@ -90,20 +93,24 @@ Menurut dokumentasi resmi Google Apps Script, script yang memiliki `doPost(e)` b
    - `Execute as`: `Me`
    - `Who has access`: `Anyone`
 8. Klik `Deploy`, lalu salin URL Web App yang berakhiran `/exec`.
-9. Buka website kuisioner Anda.
-10. Pada bagian `Sinkronisasi Google Sheets`, tempel URL Web App tadi lalu klik `Simpan URL`.
+9. Salin isi `google-apps-script/Code.gs` terbaru dari repo ini jika Anda juga ingin memakai halaman `rekap.html`.
+10. Deploy project ini ke Vercel.
+11. Di pengaturan project Vercel, tambahkan environment variables:
+    - `GOOGLE_APPS_SCRIPT_URL` = URL Web App Apps Script Anda
+    - `REKAP_ACCESS_KEY` = kunci admin untuk membuka halaman `/rekap`
+12. Redeploy project.
 
 Setelah itu, setiap submit baru akan:
 
 - tetap tersimpan lokal di browser,
-- masuk ke tabel rekap halaman,
-- terkirim juga ke Google Sheets.
+- diteruskan server ke Google Sheets tanpa mengekspos URL Web App,
+- bisa dilihat dari halaman `/rekap` jika kunci akses benar.
 
 ## Export hasil penelitian
 
 Ada 2 jalur export:
 
-1. Dari website:
+1. Dari halaman `/rekap`:
    - klik `Export CSV` untuk analisis di Excel, SPSS, Jamovi, atau R.
    - klik `Export JSON` bila Anda butuh format mentah.
 
@@ -114,6 +121,9 @@ Ada 2 jalur export:
 
 ## Catatan teknis
 
-- Sinkronisasi ke Google Sheets dilakukan dari browser dengan `POST` ke Apps Script.
-- Jika URL Apps Script belum diisi atau gagal diakses, data tetap aman di `localStorage` browser dan masih bisa diexport manual.
+- Menaruh URL Apps Script di frontend env tidak benar-benar menyembunyikannya, karena nilainya tetap terkirim ke browser saat runtime atau build.
+- Pada versi ini, sinkronisasi ke Google Sheets dilakukan lewat Vercel Function (`/api/submit`) yang membaca `GOOGLE_APPS_SCRIPT_URL` dari env server.
+- Halaman rekap mengambil data dari `/api/rekap` dan dibatasi oleh `REKAP_ACCESS_KEY`.
+- Jika halaman `/rekap` menampilkan error bahwa `/api/rekap` mengembalikan HTML, itu biasanya berarti project belum dideploy di platform yang menjalankan server function, atau deployment lama belum memuat folder `api/`.
+- Jika env server belum diisi atau Apps Script gagal diakses, data tetap aman di `localStorage` browser perangkat responden sebagai cadangan lokal.
 - Untuk penelitian nyata, uji dulu dengan 2-3 submit percobaan sebelum membagikan link ke responden.

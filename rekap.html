@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rekap Data Penelitian</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: rgba(255, 252, 246, 0.92);
+        --panel-strong: #fffdf8;
+        --text: #1d2b2a;
+        --muted: #5f6d68;
+        --line: rgba(29, 43, 42, 0.12);
+        --primary: #c95f36;
+        --primary-dark: #944024;
+        --accent: #1f7a72;
+        --shadow: 0 18px 45px rgba(58, 42, 27, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(201, 95, 54, 0.22), transparent 32%),
+          radial-gradient(circle at top right, rgba(31, 122, 114, 0.18), transparent 28%),
+          linear-gradient(180deg, #f8f2e8 0%, var(--bg) 100%);
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 72px;
+      }
+
+      .hero,
+      .card {
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 32px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(31, 122, 114, 0.1);
+        color: var(--accent);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 18px 0 10px;
+        font-size: clamp(2rem, 3vw, 3rem);
+        line-height: 1.08;
+      }
+
+      .hero p,
+      .muted,
+      .empty-state {
+        color: var(--muted);
+      }
+
+      .hero-actions,
+      .toolbar,
+      .auth-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .card {
+        margin-top: 24px;
+        padding: 24px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+        min-width: min(360px, 100%);
+      }
+
+      label {
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid rgba(29, 43, 42, 0.18);
+        border-radius: 14px;
+        font: inherit;
+        color: var(--text);
+        background: #fff;
+      }
+
+      button,
+      .ghost-link {
+        border: 0;
+        border-radius: 999px;
+        padding: 14px 22px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, var(--primary), #df855f);
+        color: #fff;
+      }
+
+      .neutral-btn,
+      .ghost-link {
+        background: #fff;
+        color: var(--text);
+        border: 1px solid var(--line);
+        text-decoration: none;
+      }
+
+      .dataset-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 20px 0;
+      }
+
+      .stat-card {
+        padding: 16px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+      }
+
+      .stat-card strong {
+        display: block;
+        font-size: 1.5rem;
+        margin-top: 6px;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.92rem;
+      }
+
+      .status-on {
+        background: rgba(31, 122, 114, 0.12);
+        color: var(--accent);
+      }
+
+      .status-off {
+        background: rgba(201, 95, 54, 0.12);
+        color: var(--primary-dark);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #fff;
+        margin-top: 18px;
+      }
+
+      table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      th {
+        background: #f8f2ea;
+        font-size: 0.92rem;
+      }
+
+      .empty-state {
+        padding: 18px;
+      }
+
+      @media (max-width: 720px) {
+        .page-shell {
+          width: min(100% - 20px, 1180px);
+          padding-top: 20px;
+        }
+
+        .hero,
+        .card {
+          padding: 22px;
+          border-radius: 22px;
+        }
+
+        .dataset-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .auth-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero">
+        <div class="eyebrow">Panel Rekap Penelitian</div>
+        <h1>Rekap Respon Penelitian</h1>
+        <p>
+          Halaman ini mengambil data terpusat dari Google Sheets melalui API
+          server. URL Web App tidak ditampilkan ke browser publik, dan akses
+          rekap dapat dibatasi dengan kunci admin.
+        </p>
+        <div class="hero-actions" style="margin-top: 18px;">
+          <a class="ghost-link" href="/">Kembali ke Kuisioner</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="auth-row">
+          <div class="field">
+            <label for="accessKey">Kunci Akses Rekap</label>
+            <input
+              id="accessKey"
+              type="password"
+              placeholder="Masukkan kunci akses admin"
+              autocomplete="current-password"
+            />
+          </div>
+          <button class="primary-btn" type="button" id="loadBtn">Muat Rekap</button>
+          <span class="status-badge status-off" id="statusBadge">Belum memuat data</span>
+        </div>
+
+        <div class="dataset-stats">
+          <div class="stat-card">
+            Total Responden
+            <strong id="totalResponses">0</strong>
+          </div>
+          <div class="stat-card">
+            Rata-rata Skor Seluruh Data
+            <strong id="datasetAverage">0.00</strong>
+          </div>
+          <div class="stat-card">
+            Status Dataset
+            <strong id="datasetStatus">Kosong</strong>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="neutral-btn" type="button" id="exportCsvBtn">Export CSV</button>
+          <button class="neutral-btn" type="button" id="exportJsonBtn">Export JSON</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Nama</th>
+                <th>Kampus</th>
+                <th>Program Studi</th>
+                <th>Semester</th>
+                <th>Skor Rata-rata</th>
+                <th>Kategori</th>
+                <th>Opini</th>
+              </tr>
+            </thead>
+            <tbody id="responsesTableBody">
+              <tr>
+                <td class="empty-state" colspan="8">
+                  Masukkan kunci akses lalu muat rekap untuk melihat data penelitian.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const ACCESS_KEY_STORAGE = "ai-elearning-rekap-access-key";
+      const QUESTION_IDS = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10"];
+      let currentResponses = [];
+
+      const accessKeyInput = document.getElementById("accessKey");
+      const loadBtn = document.getElementById("loadBtn");
+      const statusBadge = document.getElementById("statusBadge");
+      const totalResponsesEl = document.getElementById("totalResponses");
+      const datasetAverageEl = document.getElementById("datasetAverage");
+      const datasetStatusEl = document.getElementById("datasetStatus");
+      const responsesTableBody = document.getElementById("responsesTableBody");
+      const exportCsvBtn = document.getElementById("exportCsvBtn");
+      const exportJsonBtn = document.getElementById("exportJsonBtn");
+
+      function formatTimestamp(isoString) {
+        return new Date(isoString).toLocaleString("id-ID", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+      }
+
+      function setStatus(text, isSuccess) {
+        statusBadge.textContent = text;
+        statusBadge.className = `status-badge ${isSuccess ? "status-on" : "status-off"}`;
+      }
+
+      function renderResponses(responses) {
+        currentResponses = responses;
+        totalResponsesEl.textContent = String(responses.length);
+
+        if (responses.length === 0) {
+          datasetAverageEl.textContent = "0.00";
+          datasetStatusEl.textContent = "Kosong";
+          responsesTableBody.innerHTML = `
+            <tr>
+              <td class="empty-state" colspan="8">
+                Belum ada data responden yang tersimpan di Google Sheets.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const datasetAverage =
+          responses.reduce((sum, item) => sum + Number(item.averageScore || 0), 0) /
+          responses.length;
+
+        datasetAverageEl.textContent = datasetAverage.toFixed(2);
+        datasetStatusEl.textContent = "Tersinkron";
+        responsesTableBody.innerHTML = responses
+          .map(
+            (item) => `
+              <tr>
+                <td>${formatTimestamp(item.submittedAt)}</td>
+                <td>${item.nama}</td>
+                <td>${item.kampus}</td>
+                <td>${item.fakultas}</td>
+                <td>${item.semester}</td>
+                <td>${Number(item.averageScore || 0).toFixed(2)}</td>
+                <td>${item.category}</td>
+                <td>${item.opini || "-"}</td>
+              </tr>
+            `
+          )
+          .join("");
+      }
+
+      function renderErrorState(message) {
+        currentResponses = [];
+        totalResponsesEl.textContent = "0";
+        datasetAverageEl.textContent = "0.00";
+        datasetStatusEl.textContent = "Belum tersedia";
+        responsesTableBody.innerHTML = `
+          <tr>
+            <td class="empty-state" colspan="8">${message}</td>
+          </tr>
+        `;
+      }
+
+      function escapeCsv(value) {
+        const safe = String(value ?? "").replaceAll('"', '""');
+        return `"${safe}"`;
+      }
+
+      function downloadFile(content, fileName, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportCsv() {
+        if (currentResponses.length === 0) {
+          alert("Belum ada data untuk diexport.");
+          return;
+        }
+
+        const headers = [
+          "submitted_at",
+          "nama",
+          "kampus",
+          "fakultas",
+          "semester",
+          ...QUESTION_IDS,
+          "average_score",
+          "category",
+          "opini"
+        ];
+
+        const rows = currentResponses.map((item) => [
+          item.submittedAt,
+          item.nama,
+          item.kampus,
+          item.fakultas,
+          item.semester,
+          ...QUESTION_IDS.map((id) => item.answers?.[id] ?? ""),
+          Number(item.averageScore || 0).toFixed(2),
+          item.category,
+          item.opini
+        ]);
+
+        const csvContent = [headers, ...rows]
+          .map((row) => row.map(escapeCsv).join(","))
+          .join("\n");
+
+        downloadFile(csvContent, "rekap-kuisioner-ai.csv", "text/csv;charset=utf-8;");
+      }
+
+      function exportJson() {
+        if (currentResponses.length === 0) {
+          alert("Belum ada data untuk diexport.");
+          return;
+        }
+
+        downloadFile(
+          JSON.stringify(currentResponses, null, 2),
+          "rekap-kuisioner-ai.json",
+          "application/json;charset=utf-8;"
+        );
+      }
+
+      async function readJsonSafely(response) {
+        const contentType = response.headers.get("content-type") || "";
+        const rawText = await response.text();
+
+        if (!contentType.includes("application/json")) {
+          if (rawText.trim().startsWith("<!DOCTYPE") || rawText.trim().startsWith("<html")) {
+            throw new Error(
+              "Endpoint /api/rekap mengembalikan HTML, bukan JSON. Biasanya ini berarti function API belum terdeploy atau situs masih di-host sebagai static-only."
+            );
+          }
+          throw new Error("Endpoint /api/rekap tidak mengembalikan JSON yang valid.");
+        }
+
+        try {
+          return JSON.parse(rawText);
+        } catch (error) {
+          throw new Error("Respons /api/rekap bukan JSON yang valid.");
+        }
+      }
+
+      async function loadRekap() {
+        const accessKey = accessKeyInput.value.trim();
+        if (!accessKey) {
+          alert("Masukkan kunci akses rekap terlebih dahulu.");
+          return;
+        }
+
+        setStatus("Memuat data...", false);
+        sessionStorage.setItem(ACCESS_KEY_STORAGE, accessKey);
+
+        try {
+          const response = await fetch(`/api/rekap?key=${encodeURIComponent(accessKey)}`);
+          const data = await readJsonSafely(response);
+
+          if (!response.ok) {
+            throw new Error(data.message || "Gagal memuat rekap.");
+          }
+
+          renderResponses(data.responses || []);
+          setStatus("Rekap berhasil dimuat", true);
+        } catch (error) {
+          renderErrorState(error.message || "Gagal memuat data.");
+          setStatus(error.message || "Gagal memuat data", false);
+        }
+      }
+
+      accessKeyInput.value = sessionStorage.getItem(ACCESS_KEY_STORAGE) || "";
+      loadBtn.addEventListener("click", loadRekap);
+      exportCsvBtn.addEventListener("click", exportCsv);
+      exportJsonBtn.addEventListener("click", exportJson);
+    </script>
+  </body>
+</html>

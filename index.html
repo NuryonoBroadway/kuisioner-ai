@@ -316,76 +316,25 @@
         border: 1px solid var(--line);
       }
 
-      .danger-btn {
-        background: #fff4f0;
-        color: #9a3c1d;
-        border: 1px solid rgba(154, 60, 29, 0.18);
+      .ghost-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 22px;
+        border-radius: 999px;
+        text-decoration: none;
+        background: #fff;
+        color: var(--text);
+        border: 1px solid var(--line);
+        font-weight: 700;
       }
 
-      .dataset-box {
+      .info-box {
         margin-top: 24px;
         padding: 20px;
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.75);
         border: 1px solid var(--line);
-      }
-
-      .dataset-stats {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin: 16px 0 18px;
-      }
-
-      .stat-card {
-        padding: 16px;
-        border-radius: 18px;
-        background: #fff;
-        border: 1px solid var(--line);
-      }
-
-      .stat-card strong {
-        display: block;
-        font-size: 1.4rem;
-        margin-top: 6px;
-      }
-
-      .table-wrap {
-        overflow-x: auto;
-        border-radius: 18px;
-        border: 1px solid var(--line);
-        background: #fff;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 860px;
-      }
-
-      th,
-      td {
-        padding: 12px 14px;
-        text-align: left;
-        border-bottom: 1px solid var(--line);
-        vertical-align: top;
-      }
-
-      th {
-        background: #f8f2ea;
-        font-size: 0.92rem;
-      }
-
-      .empty-state {
-        padding: 18px;
-        color: var(--muted);
-      }
-
-      .settings-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 12px;
-        align-items: end;
       }
 
       .status-badge {
@@ -446,13 +395,6 @@
           padding-inline: 14px;
         }
 
-        .dataset-stats {
-          grid-template-columns: 1fr;
-        }
-
-        .settings-grid {
-          grid-template-columns: 1fr;
-        }
       }
     </style>
   </head>
@@ -578,93 +520,22 @@
 
             <div class="result-box" id="resultBox" aria-live="polite"></div>
 
-            <div class="dataset-box">
+            <div class="info-box">
               <div class="section-header">
-                <h2>Sinkronisasi Google Sheets</h2>
+                <h2>Pengumpulan Data Penelitian</h2>
                 <p>
-                  Tempel URL Web App Google Apps Script agar setiap respons
-                  juga dikirim ke spreadsheet penelitian Anda.
+                  Respons tetap disimpan lokal pada perangkat ini sebagai
+                  cadangan. Jika admin mengaktifkan integrasi server, data juga
+                  diteruskan otomatis ke Google Sheets tanpa menampilkan URL
+                  Web App di browser responden.
                 </p>
               </div>
 
-              <div class="settings-grid">
-                <div class="field" style="margin: 0;">
-                  <label for="scriptUrl">URL Web App Google Apps Script</label>
-                  <input
-                    id="scriptUrl"
-                    type="url"
-                    placeholder="https://script.google.com/macros/s/AKfycb.../exec"
-                  />
-                </div>
-                <button class="neutral-btn" type="button" id="saveScriptUrlBtn">
-                  Simpan URL
-                </button>
-              </div>
-
-              <div style="margin-top: 14px;">
+              <div class="toolbar" style="margin-top: 0;">
                 <span class="status-badge status-off" id="syncStatus">
-                  Sinkronisasi belum aktif
+                  Sinkronisasi server belum terdeteksi
                 </span>
-              </div>
-            </div>
-
-            <div class="dataset-box">
-              <div class="section-header">
-                <h2>Rekap Data Penelitian</h2>
-                <p>
-                  Respons disimpan di browser perangkat ini dan dapat diekspor
-                  untuk analisis di Excel, Google Sheets, SPSS, atau R.
-                </p>
-              </div>
-
-              <div class="dataset-stats">
-                <div class="stat-card">
-                  Total Responden
-                  <strong id="totalResponses">0</strong>
-                </div>
-                <div class="stat-card">
-                  Rata-rata Skor Seluruh Data
-                  <strong id="datasetAverage">0.00</strong>
-                </div>
-                <div class="stat-card">
-                  Status Dataset
-                  <strong id="datasetStatus">Kosong</strong>
-                </div>
-              </div>
-
-              <div class="toolbar">
-                <button class="neutral-btn" type="button" id="exportCsvBtn">
-                  Export CSV
-                </button>
-                <button class="neutral-btn" type="button" id="exportJsonBtn">
-                  Export JSON
-                </button>
-                <button class="danger-btn" type="button" id="clearDataBtn">
-                  Hapus Data Lokal
-                </button>
-              </div>
-
-              <div class="table-wrap" style="margin-top: 18px;">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Waktu</th>
-                      <th>Nama</th>
-                      <th>Kampus</th>
-                      <th>Program Studi</th>
-                      <th>Semester</th>
-                      <th>Skor Rata-rata</th>
-                      <th>Kategori</th>
-                    </tr>
-                  </thead>
-                  <tbody id="responsesTableBody">
-                    <tr>
-                      <td class="empty-state" colspan="7">
-                        Belum ada data responden yang tersimpan.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <a class="ghost-link" href="/rekap">Buka Halaman Rekap</a>
               </div>
             </div>
           </form>
@@ -674,7 +545,6 @@
 
     <script>
       const STORAGE_KEY = "ai-elearning-survey-responses-v1";
-      const SCRIPT_URL_KEY = "ai-elearning-google-script-url";
       const questions = [
         {
           id: "q1",
@@ -739,15 +609,6 @@
       const questionList = document.getElementById("questionList");
       const form = document.getElementById("surveyForm");
       const resultBox = document.getElementById("resultBox");
-      const totalResponsesEl = document.getElementById("totalResponses");
-      const datasetAverageEl = document.getElementById("datasetAverage");
-      const datasetStatusEl = document.getElementById("datasetStatus");
-      const responsesTableBody = document.getElementById("responsesTableBody");
-      const exportCsvBtn = document.getElementById("exportCsvBtn");
-      const exportJsonBtn = document.getElementById("exportJsonBtn");
-      const clearDataBtn = document.getElementById("clearDataBtn");
-      const scriptUrlInput = document.getElementById("scriptUrl");
-      const saveScriptUrlBtn = document.getElementById("saveScriptUrlBtn");
       const syncStatus = document.getElementById("syncStatus");
 
       questions.forEach((question, index) => {
@@ -794,14 +655,6 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(responses));
       }
 
-      function loadScriptUrl() {
-        return localStorage.getItem(SCRIPT_URL_KEY) || "";
-      }
-
-      function saveScriptUrl(url) {
-        localStorage.setItem(SCRIPT_URL_KEY, url);
-      }
-
       function getCategory(average) {
         if (average >= 4.2) {
           return "Ketergantungan terhadap AI cenderung tinggi";
@@ -815,139 +668,13 @@
         return "Penggunaan AI seimbang";
       }
 
-      function formatTimestamp(isoString) {
-        return new Date(isoString).toLocaleString("id-ID", {
-          dateStyle: "medium",
-          timeStyle: "short"
-        });
-      }
-
-      function renderResponses() {
-        const responses = loadResponses();
-        totalResponsesEl.textContent = String(responses.length);
-
-        if (responses.length === 0) {
-          datasetAverageEl.textContent = "0.00";
-          datasetStatusEl.textContent = "Kosong";
-          responsesTableBody.innerHTML = `
-            <tr>
-              <td class="empty-state" colspan="7">
-                Belum ada data responden yang tersimpan.
-              </td>
-            </tr>
-          `;
-          return;
-        }
-
-        const datasetAverage =
-          responses.reduce((sum, item) => sum + item.averageScore, 0) / responses.length;
-
-        datasetAverageEl.textContent = datasetAverage.toFixed(2);
-        datasetStatusEl.textContent = "Siap diexport";
-        responsesTableBody.innerHTML = responses
-          .map(
-            (item) => `
-              <tr>
-                <td>${formatTimestamp(item.submittedAt)}</td>
-                <td>${item.nama}</td>
-                <td>${item.kampus}</td>
-                <td>${item.fakultas}</td>
-                <td>${item.semester}</td>
-                <td>${item.averageScore.toFixed(2)}</td>
-                <td>${item.category}</td>
-              </tr>
-            `
-          )
-          .join("");
-      }
-
-      function escapeCsv(value) {
-        const safe = String(value ?? "").replaceAll('"', '""');
-        return `"${safe}"`;
-      }
 
       function renderSyncStatus() {
-        const scriptUrl = loadScriptUrl();
-        scriptUrlInput.value = scriptUrl;
-        if (scriptUrl) {
-          syncStatus.textContent = "Sinkronisasi Google Sheets aktif";
-          syncStatus.className = "status-badge status-on";
-          return;
-        }
-        syncStatus.textContent = "Sinkronisasi belum aktif";
+        syncStatus.textContent = "Sinkronisasi server belum terdeteksi";
         syncStatus.className = "status-badge status-off";
       }
 
-      function downloadFile(content, fileName, mimeType) {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = fileName;
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        URL.revokeObjectURL(url);
-      }
-
-      function exportCsv() {
-        const responses = loadResponses();
-        if (responses.length === 0) {
-          alert("Belum ada data untuk diexport.");
-          return;
-        }
-
-        const headers = [
-          "submitted_at",
-          "nama",
-          "kampus",
-          "fakultas",
-          "semester",
-          ...questions.map((question) => question.id),
-          "average_score",
-          "category",
-          "opini"
-        ];
-
-        const rows = responses.map((item) => [
-          item.submittedAt,
-          item.nama,
-          item.kampus,
-          item.fakultas,
-          item.semester,
-          ...questions.map((question) => item.answers[question.id]),
-          item.averageScore.toFixed(2),
-          item.category,
-          item.opini
-        ]);
-
-        const csvContent = [headers, ...rows]
-          .map((row) => row.map(escapeCsv).join(","))
-          .join("\n");
-
-        downloadFile(csvContent, "hasil-kuisioner-ai.csv", "text/csv;charset=utf-8;");
-      }
-
-      function exportJson() {
-        const responses = loadResponses();
-        if (responses.length === 0) {
-          alert("Belum ada data untuk diexport.");
-          return;
-        }
-
-        downloadFile(
-          JSON.stringify(responses, null, 2),
-          "hasil-kuisioner-ai.json",
-          "application/json;charset=utf-8;"
-        );
-      }
-
       async function syncToGoogleSheets(entry) {
-        const scriptUrl = loadScriptUrl();
-        if (!scriptUrl) {
-          return { synced: false, reason: "not-configured" };
-        }
-
         const payload = new URLSearchParams({
           submittedAt: entry.submittedAt,
           nama: entry.nama,
@@ -961,15 +688,20 @@
         });
 
         try {
-          await fetch(scriptUrl, {
+          const response = await fetch("/api/submit", {
             method: "POST",
-            mode: "no-cors",
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+              "Content-Type": "application/json"
             },
-            body: payload.toString()
+            body: JSON.stringify(Object.fromEntries(payload))
           });
-          return { synced: true };
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            return { synced: false, reason: data.reason || "sync-failed" };
+          }
+
+          return { synced: Boolean(data.synced) };
         } catch (error) {
           return { synced: false, reason: "network-error" };
         }
@@ -1003,20 +735,21 @@
         const responses = loadResponses();
         responses.push(entry);
         saveResponses(responses);
-        renderResponses();
         const syncResult = await syncToGoogleSheets(entry);
 
         let syncMessage =
-          "Data juga tersimpan di dataset lokal browser ini dan siap diexport ke format penelitian.";
+          "Data juga tersimpan di perangkat ini sebagai cadangan lokal.";
         if (syncResult.synced) {
+          syncStatus.textContent = "Sinkronisasi Google Sheets aktif";
+          syncStatus.className = "status-badge status-on";
           syncMessage =
-            "Data tersimpan di browser ini dan juga dikirim ke Google Sheets penelitian Anda.";
-        } else if (syncResult.reason === "not-configured") {
+            "Data tersimpan di perangkat ini dan juga dikirim ke Google Sheets penelitian.";
+        } else if (syncResult.reason === "not-configured" || syncResult.reason === "sync-disabled") {
           syncMessage =
-            "Data tersimpan lokal. Tambahkan URL Google Apps Script agar respons berikutnya juga masuk ke Google Sheets.";
+            "Data tersimpan lokal. Admin belum mengaktifkan sinkronisasi server ke Google Sheets.";
         } else {
           syncMessage =
-            "Data tersimpan lokal, tetapi pengiriman ke Google Sheets gagal. Periksa URL Web App atau izin deployment.";
+            "Data tersimpan lokal, tetapi pengiriman ke Google Sheets gagal. Periksa konfigurasi server atau deployment Apps Script.";
         }
 
         resultBox.classList.add("show");
@@ -1036,29 +769,7 @@
         resultBox.innerHTML = "";
       });
 
-      exportCsvBtn.addEventListener("click", exportCsv);
-      exportJsonBtn.addEventListener("click", exportJson);
-      clearDataBtn.addEventListener("click", () => {
-        if (!window.confirm("Hapus seluruh data responden yang tersimpan di browser ini?")) {
-          return;
-        }
-        localStorage.removeItem(STORAGE_KEY);
-        renderResponses();
-        resultBox.classList.remove("show");
-        resultBox.innerHTML = "";
-      });
-      saveScriptUrlBtn.addEventListener("click", () => {
-        const url = scriptUrlInput.value.trim();
-        if (url && !url.startsWith("https://script.google.com/")) {
-          alert("Gunakan URL Web App Google Apps Script yang valid.");
-          return;
-        }
-        saveScriptUrl(url);
-        renderSyncStatus();
-      });
-
       renderSyncStatus();
-      renderResponses();
     </script>
   </body>
 </html>
