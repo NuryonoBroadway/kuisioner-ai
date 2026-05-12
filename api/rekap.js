@@ -26,27 +26,23 @@ module.exports = async (req, res) => {
       return res.status(502).json({ ok: false, message: "Gagal mengambil data dari Google Sheets." });
     }
 
-    const contentType = upstream.headers.get("content-type") || "";
     const rawText = await upstream.text();
+    const normalized = rawText.replace(/^\uFEFF/, "").trim();
+    const looksLikeHtml =
+      normalized.startsWith("<!DOCTYPE") || normalized.startsWith("<html");
+    const jsonCandidate = normalized.startsWith(")]}'")
+      ? normalized.slice(normalized.indexOf("\n") + 1).trim()
+      : normalized;
 
-    if (!contentType.includes("application/json")) {
-      const looksLikeHtml =
-        rawText.trim().startsWith("<!DOCTYPE") || rawText.trim().startsWith("<html");
+    let data;
+    try {
+      data = JSON.parse(jsonCandidate);
+    } catch (error) {
       return res.status(502).json({
         ok: false,
         message: looksLikeHtml
           ? "Apps Script mengembalikan HTML, bukan JSON. Periksa apakah Web App sudah di-deploy ulang, URL benar, dan akses deployment di-set ke Anyone."
           : "Apps Script tidak mengembalikan JSON yang valid."
-      });
-    }
-
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (error) {
-      return res.status(502).json({
-        ok: false,
-        message: "Respons Apps Script bukan JSON yang valid."
       });
     }
 
