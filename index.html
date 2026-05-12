@@ -274,6 +274,12 @@
         color: #fff;
       }
 
+      .primary-btn:disabled,
+      .secondary-btn:disabled {
+        opacity: 0.62;
+        cursor: not-allowed;
+      }
+
       .secondary-btn {
         background: transparent;
         color: var(--accent);
@@ -297,64 +303,6 @@
         font-size: 1.6rem;
         font-weight: 800;
         color: var(--accent);
-      }
-
-      .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 18px;
-      }
-
-      .toolbar button {
-        padding: 12px 18px;
-      }
-
-      .neutral-btn {
-        background: #fff;
-        color: var(--text);
-        border: 1px solid var(--line);
-      }
-
-      .ghost-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 14px 22px;
-        border-radius: 999px;
-        text-decoration: none;
-        background: #fff;
-        color: var(--text);
-        border: 1px solid var(--line);
-        font-weight: 700;
-      }
-
-      .info-box {
-        margin-top: 24px;
-        padding: 20px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.75);
-        border: 1px solid var(--line);
-      }
-
-      .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 0.92rem;
-      }
-
-      .status-on {
-        background: rgba(31, 122, 114, 0.12);
-        color: var(--accent);
-      }
-
-      .status-off {
-        background: rgba(201, 95, 54, 0.12);
-        color: var(--primary-dark);
       }
 
       @media (max-width: 960px) {
@@ -513,31 +461,12 @@
             </div>
 
             <div class="actions">
-              <button class="primary-btn" type="submit">Kirim Kuisioner</button>
-              <button class="secondary-btn" type="reset">Reset Form</button>
+              <button class="primary-btn" type="submit" id="submitBtn">Kirim Kuisioner</button>
+              <button class="secondary-btn" type="reset" id="resetBtn">Reset Form</button>
               <span class="hint">Semua pernyataan wajib diisi sebelum dikirim.</span>
             </div>
 
             <div class="result-box" id="resultBox" aria-live="polite"></div>
-
-            <div class="info-box">
-              <div class="section-header">
-                <h2>Pengumpulan Data Penelitian</h2>
-                <p>
-                  Respons tetap disimpan lokal pada perangkat ini sebagai
-                  cadangan. Jika admin mengaktifkan integrasi server, data juga
-                  diteruskan otomatis ke Google Sheets tanpa menampilkan URL
-                  Web App di browser responden.
-                </p>
-              </div>
-
-              <div class="toolbar" style="margin-top: 0;">
-                <span class="status-badge status-off" id="syncStatus">
-                  Sinkronisasi server belum terdeteksi
-                </span>
-                <a class="ghost-link" href="/rekap">Buka Halaman Rekap</a>
-              </div>
-            </div>
           </form>
         </section>
       </div>
@@ -609,7 +538,10 @@
       const questionList = document.getElementById("questionList");
       const form = document.getElementById("surveyForm");
       const resultBox = document.getElementById("resultBox");
-      const syncStatus = document.getElementById("syncStatus");
+      const submitBtn = document.getElementById("submitBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const defaultSubmitLabel = submitBtn.textContent;
+      let hasSubmitted = false;
 
       questions.forEach((question, index) => {
         const wrapper = document.createElement("article");
@@ -668,10 +600,10 @@
         return "Penggunaan AI seimbang";
       }
 
-
-      function renderSyncStatus() {
-        syncStatus.textContent = "Sinkronisasi server belum terdeteksi";
-        syncStatus.className = "status-badge status-off";
+      function setSubmittingState(isSubmitting) {
+        submitBtn.disabled = isSubmitting || hasSubmitted;
+        resetBtn.disabled = isSubmitting;
+        submitBtn.textContent = isSubmitting ? "Mengirim..." : defaultSubmitLabel;
       }
 
       async function syncToGoogleSheets(entry) {
@@ -709,67 +641,85 @@
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-
-        const formData = new FormData(form);
-        const scores = questions.map((question) => Number(formData.get(question.id)));
-        const total = scores.reduce((sum, score) => sum + score, 0);
-        const average = total / questions.length;
-        const category = getCategory(average);
-
-        const answerMap = Object.fromEntries(
-          questions.map((question) => [question.id, Number(formData.get(question.id))])
-        );
-
-        const entry = {
-          submittedAt: new Date().toISOString(),
-          nama: formData.get("nama"),
-          kampus: formData.get("kampus"),
-          fakultas: formData.get("fakultas"),
-          semester: formData.get("semester"),
-          opini: formData.get("opini"),
-          answers: answerMap,
-          averageScore: Number(average.toFixed(2)),
-          category
-        };
-
-        const responses = loadResponses();
-        responses.push(entry);
-        saveResponses(responses);
-        const syncResult = await syncToGoogleSheets(entry);
-
-        let syncMessage =
-          "Data juga tersimpan di perangkat ini sebagai cadangan lokal.";
-        if (syncResult.synced) {
-          syncStatus.textContent = "Sinkronisasi Google Sheets aktif";
-          syncStatus.className = "status-badge status-on";
-          syncMessage =
-            "Data tersimpan di perangkat ini dan juga dikirim ke Google Sheets penelitian.";
-        } else if (syncResult.reason === "not-configured" || syncResult.reason === "sync-disabled") {
-          syncMessage =
-            "Data tersimpan lokal. Admin belum mengaktifkan sinkronisasi server ke Google Sheets.";
-        } else {
-          syncMessage =
-            "Data tersimpan lokal, tetapi pengiriman ke Google Sheets gagal. Periksa konfigurasi server atau deployment Apps Script.";
+        if (submitBtn.disabled || hasSubmitted) {
+          return;
         }
 
-        resultBox.classList.add("show");
-        resultBox.innerHTML = `
-          <div class="result-score">Skor rata-rata: ${average.toFixed(2)} / 5</div>
-          <p><strong>Interpretasi:</strong> ${category}</p>
-          <p>
-            Data responden atas nama <strong>${formData.get("nama")}</strong>
-            berhasil direkam. ${syncMessage}
-          </p>
-        `;
-        resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        setSubmittingState(true);
+
+        try {
+          const formData = new FormData(form);
+          const scores = questions.map((question) => Number(formData.get(question.id)));
+          const total = scores.reduce((sum, score) => sum + score, 0);
+          const average = total / questions.length;
+          const category = getCategory(average);
+
+          const answerMap = Object.fromEntries(
+            questions.map((question) => [question.id, Number(formData.get(question.id))])
+          );
+
+          const entry = {
+            submittedAt: new Date().toISOString(),
+            nama: formData.get("nama"),
+            kampus: formData.get("kampus"),
+            fakultas: formData.get("fakultas"),
+            semester: formData.get("semester"),
+            opini: formData.get("opini"),
+            answers: answerMap,
+            averageScore: Number(average.toFixed(2)),
+            category
+          };
+
+          const responses = loadResponses();
+          responses.push(entry);
+          saveResponses(responses);
+          const syncResult = await syncToGoogleSheets(entry);
+
+          let syncMessage =
+            "Data juga tersimpan di perangkat ini sebagai cadangan lokal.";
+          if (syncResult.synced) {
+            syncMessage =
+              "Data tersimpan di perangkat ini dan juga dikirim ke Google Sheets penelitian.";
+          } else if (syncResult.reason === "not-configured" || syncResult.reason === "sync-disabled") {
+            syncMessage =
+              "Data tersimpan lokal. Admin belum mengaktifkan sinkronisasi server ke Google Sheets.";
+          } else {
+            syncMessage =
+              "Data tersimpan lokal, tetapi pengiriman ke Google Sheets gagal. Periksa konfigurasi server atau deployment Apps Script.";
+          }
+
+          resultBox.classList.add("show");
+          resultBox.innerHTML = `
+            <div class="result-score">Skor rata-rata: ${average.toFixed(2)} / 5</div>
+            <p><strong>Interpretasi:</strong> ${category}</p>
+            <p>
+              Data responden atas nama <strong>${formData.get("nama")}</strong>
+              berhasil direkam. ${syncMessage}
+            </p>
+          `;
+          resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          hasSubmitted = true;
+        } catch (error) {
+          resultBox.classList.add("show");
+          resultBox.innerHTML = `
+            <p><strong>Pengiriman gagal.</strong> Silakan coba lagi.</p>
+          `;
+        } finally {
+          setSubmittingState(false);
+        }
       });
 
       form.addEventListener("reset", () => {
+        if (hasSubmitted) {
+          form.reset();
+        }
         resultBox.classList.remove("show");
         resultBox.innerHTML = "";
+        hasSubmitted = false;
+        setSubmittingState(false);
       });
 
-      renderSyncStatus();
+      setSubmittingState(false);
     </script>
   </body>
 </html>
